@@ -288,7 +288,11 @@ int main() {
         spin_wheel(w2, 0, 0, wheel2, &wheel2_idx);
         spin_wheel(w3, 0, 0, wheel3, &wheel3_idx);
         int payout_mul = calculate_payout(wheel1, wheel2, wheel3, wheel1_idx, wheel2_idx, wheel3_idx);
-        credits += (bet * payout_mul) - bet;
+        credits -= bet;
+        credits += bet * payout_mul;
+        if(credits <= 0){
+            mvprintw(center_y, center_x, "Game Over!");
+        }
         mvprintw(center_y + 5, center_x - 16, "Payout: %d", bet * payout_mul);
         mvprintw(center_y + 6, center_x - 16, "Credits: %d", credits);
         refresh();
