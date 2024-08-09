@@ -149,7 +149,7 @@ int calculate_payout(int* wheel1, int* wheel2, int* wheel3, int idx1, int idx2, 
     int symbol2 = wheel2[idx2];
     int symbol3 = wheel3[idx3];
 
-    mvprintw(5, 5, "Debug: Symbol1=%d, Symbol2=%d, Symbol3=%d\n", symbol1, symbol2, symbol3);
+    // mvprintw(5, 5, "Debug: Symbol1=%d, Symbol2=%d, Symbol3=%d\n", symbol1, symbol2, symbol3);
 
     if(symbol1 == symbol2 && symbol2 == symbol3){
         switch(symbol1){
