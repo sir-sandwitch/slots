@@ -296,7 +296,7 @@ int main() {
             mvprintw(center_y, center_x, "Game Over!");
         }
         mvprintw(center_y + 5, center_x - 16, "Payout: %d", bet * payout_mul);
-        mvprintw(center_y + 6, center_x - 16, "Credits: %d", credits);
+        mvprintw(center_y + 6, center_x - 16, "Credits: %d ", credits);
         refresh();
     }
 
