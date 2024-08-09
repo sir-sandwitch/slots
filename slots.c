@@ -4,15 +4,15 @@
 
 uint8_t color = 0;
 
-uint8_t wheel1_idx = 0;
-uint8_t wheel2_idx = 0;
-uint8_t wheel3_idx = 0;
+int wheel1_idx = 0;
+int wheel2_idx = 0;
+int wheel3_idx = 0;
 
 uint32_t bet = 1;
 
 uint32_t credits = 100;
 
-static enum {CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN} symbols;
+static enum {CHERRY=0, BELL, LEMON, GRAPES, BAR, SEVEN} symbols;
 
 static char* cherry = "        \n"
                       "  /\\    \n"
@@ -56,11 +56,11 @@ static char* seven = "        \n"
                      " /_/    \n"
                      "        \n";
 
-static uint8_t wheel1[15] = {CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON};
-static uint8_t wheel2[15] = {BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES};
-static uint8_t wheel3[15] = {LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR};
+static int wheel1[15] = {CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON};
+static int wheel2[15] = {BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES};
+static int wheel3[15] = {LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR, SEVEN, CHERRY, BELL, LEMON, GRAPES, BAR};
 
-static void draw_symbol(WINDOW* win, int y, int x, uint8_t symbol) {
+static void draw_symbol(WINDOW* win, int y, int x, int symbol) {
     char* s;
     switch (symbol) {
         case CHERRY:
@@ -126,7 +126,7 @@ static void draw_symbol(WINDOW* win, int y, int x, uint8_t symbol) {
 }
 
 
-static void draw_wheel(WINDOW* w, int y, int x, uint8_t* wheel, uint8_t idx) {
+static void draw_wheel(WINDOW* w, int y, int x, int* wheel, int idx) {
     draw_symbol(w, y, x, wheel[idx]);
     box(w, 0, 0);
     wrefresh(w);
@@ -138,16 +138,18 @@ PAYOUT
 
 
 2 of the same symbol: 2x bet
-2 of the same symbol and 1 seven: 5x bet
+2 of the same symbol including seven: 5x bet
 3 of the same symbol: 10x bet
 3 BARs: 20x bet
 3 SEVENs: 50x bet
 
 */
-int calculate_payout(uint8_t* wheel1, uint8_t* wheel2, uint8_t* wheel3, uint8_t idx1, uint8_t idx2, uint8_t idx3) {
-    uint8_t symbol1 = wheel1[idx1];
-    uint8_t symbol2 = wheel2[idx2];
-    uint8_t symbol3 = wheel3[idx3];
+int calculate_payout(int* wheel1, int* wheel2, int* wheel3, int idx1, int idx2, int idx3) {
+    int symbol1 = wheel1[idx1];
+    int symbol2 = wheel2[idx2];
+    int symbol3 = wheel3[idx3];
+
+    mvprintw(5, 5, "Debug: Symbol1=%d, Symbol2=%d, Symbol3=%d\n", symbol1, symbol2, symbol3);
 
     if(symbol1 == symbol2 && symbol2 == symbol3){
         switch(symbol1){
@@ -181,10 +183,10 @@ int calculate_payout(uint8_t* wheel1, uint8_t* wheel2, uint8_t* wheel3, uint8_t 
     }
 }
 
-void spin_wheel(WINDOW* w, int y, int x, uint8_t* wheel, uint8_t* idx) {
+void spin_wheel(WINDOW* w, int y, int x, int* wheel, int* idx) {
     for(int i = 0; i < rand() % 15 + 15; i++){
-        draw_wheel(w, y, x, wheel, *idx);
         *idx = (*idx + 1) % 15;
+        draw_wheel(w, y, x, wheel, *idx);
         napms(100);
     }
 }
@@ -212,10 +214,10 @@ int main() {
     }
 
     printw("2 of the same symbol: 2x bet \n\
-    2 of the same symbol and 1 seven: 5x bet\n\
-    3 of the same symbol: 10x bet\n\
-    3 BARs: 20x bet\n\
-    3 SEVENs: 50x bet");
+2 of the same symbol and including seven: 5x bet\n\
+3 of the same symbol: 10x bet\n\
+3 BARs: 20x bet\n\
+3 SEVENs: 50x bet");
 
     refresh();
 
@@ -289,7 +291,7 @@ int main() {
         spin_wheel(w3, 0, 0, wheel3, &wheel3_idx);
         int payout_mul = calculate_payout(wheel1, wheel2, wheel3, wheel1_idx, wheel2_idx, wheel3_idx);
         credits -= bet;
-        credits += bet * payout_mul;
+        credits += (bet * payout_mul);
         if(credits <= 0){
             mvprintw(center_y, center_x, "Game Over!");
         }
