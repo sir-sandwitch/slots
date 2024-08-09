@@ -1,0 +1,1 @@
+A simple TUI slot machine game written in C using ncurses.
